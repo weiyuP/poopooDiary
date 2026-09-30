@@ -26,28 +26,53 @@
       </div>
     </header>
 
-    <section class="date-nav" aria-label="日期导航">
-      <button id="prevDay" class="btn icon" type="button" aria-label="前一天">‹</button>
-      <div class="date-display">
-        <strong id="dateLabel">—</strong>
-        <span id="weekdayLabel">—</span>
-      </div>
-      <button id="nextDay" class="btn icon" type="button" aria-label="后一天">›</button>
-      <button id="todayBtn" class="btn ghost small" type="button">今天</button>
-    </section>
+    <nav class="view-switch" aria-label="视图切换">
+      <button id="dayViewBtn" class="view-btn active" type="button">按日</button>
+      <button id="monthViewBtn" class="view-btn" type="button">按月</button>
+    </nav>
 
-    <section class="stats" aria-label="统计">
-      <div class="stat">
-        <span class="stat-num" id="todayCount">0</span>
-        <span class="stat-label">今日次数</span>
-      </div>
-      <div class="stat">
-        <span class="stat-num" id="monthCount">0</span>
-        <span class="stat-label">本月次数</span>
-      </div>
-    </section>
+    <div id="dayView">
+      <section class="date-nav" aria-label="日期导航">
+        <button id="prevDay" class="btn icon" type="button" aria-label="前一天">‹</button>
+        <div class="date-display">
+          <strong id="dateLabel">—</strong>
+          <span id="weekdayLabel">—</span>
+        </div>
+        <button id="nextDay" class="btn icon" type="button" aria-label="后一天">›</button>
+        <button id="todayBtn" class="btn ghost small" type="button">今天</button>
+      </section>
 
-    <main class="records" id="records"></main>
+      <section class="stats" aria-label="统计">
+        <div class="stat">
+          <span class="stat-num" id="todayCount">0</span>
+          <span class="stat-label">今日次数</span>
+        </div>
+        <div class="stat">
+          <span class="stat-num" id="monthCount">0</span>
+          <span class="stat-label">本月次数</span>
+        </div>
+      </section>
+
+      <main class="records" id="records"></main>
+    </div>
+
+    <div id="monthView" hidden>
+      <section class="month-nav" aria-label="月份导航">
+        <button id="prevMonth" class="btn icon" type="button" aria-label="上个月">‹</button>
+        <strong id="monthLabel">—</strong>
+        <button id="nextMonth" class="btn icon" type="button" aria-label="下个月">›</button>
+        <button id="thisMonthBtn" class="btn ghost small" type="button">本月</button>
+      </section>
+
+      <div class="calendar">
+        <div class="calendar-weekdays" aria-hidden="true">
+          <span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span>
+        </div>
+        <div class="calendar-grid" id="calendarGrid"></div>
+      </div>
+
+      <div class="legend" id="legend"></div>
+    </div>
 
     <button id="addBtn" class="fab" type="button" aria-label="添加记录">＋</button>
   </div>

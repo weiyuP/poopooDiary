@@ -22,6 +22,16 @@ const BRISTOL_STYLES = {
   7: { bg: '#f2dda0', fg: '#3b2410' },
 };
 
+const BRISTOL_ICONS = {
+  1: '🪨',
+  2: '🥖',
+  3: '🌭',
+  4: '💩',
+  5: '🍦',
+  6: '🥣',
+  7: '💦',
+};
+
 const COLORS = ['棕色', '深棕色', '黄色', '绿色', '黑色', '红色', '灰白色'];
 const AMOUNTS = ['少', '正常', '多'];
 const DISCOMFORTS = ['腹痛', '便血', '便秘', '腹泻', '肛门不适'];
@@ -32,6 +42,8 @@ const $ = (id) => document.getElementById(id);
 let records = loadRecords();
 let selected = startOfToday();
 let pendingImport = null;
+let view = 'day';
+let monthCursor = new Date();
 
 // ---------- helpers ----------
 function pad(n) {
@@ -113,10 +125,127 @@ function monthPrefix() {
   return selected.getFullYear() + '-' + pad(selected.getMonth() + 1);
 }
 
-function renderAll() {
+function renderDay() {
   renderDate();
   renderStats();
   renderRecords();
+}
+
+function refresh() {
+  if (view === 'month') {
+    renderMonth();
+    renderLegend();
+  } else {
+    renderDay();
+  }
+}
+
+function setView(v) {
+  view = v;
+  $('dayView').hidden = v !== 'day';
+  $('monthView').hidden = v !== 'month';
+  $('addBtn').hidden = v !== 'day';
+  $('dayViewBtn').classList.toggle('active', v === 'day');
+  $('monthViewBtn').classList.toggle('active', v === 'month');
+  if (v === 'month') {
+    monthCursor = new Date(selected.getFullYear(), selected.getMonth(), 1);
+    renderMonth();
+    renderLegend();
+  } else {
+    renderDay();
+  }
+}
+
+function renderMonth() {
+  $('monthLabel').textContent =
+    monthCursor.getFullYear() + '年' + (monthCursor.getMonth() + 1) + '月';
+
+  const grid = $('calendarGrid');
+  grid.innerHTML = '';
+
+  const y = monthCursor.getFullYear();
+  const m = monthCursor.getMonth();
+  const firstDay = new Date(y, m, 1);
+  const daysInMonth = new Date(y, m + 1, 0).getDate();
+  const offset = (firstDay.getDay() + 6) % 7; // 周一作为一周开始
+
+  for (let i = 0; i < offset; i++) {
+    grid.appendChild(buildCalendarCell(null));
+  }
+  for (let d = 1; d <= daysInMonth; d++) {
+    grid.appendChild(buildCalendarCell(new Date(y, m, d)));
+  }
+  const trailing = (7 - ((offset + daysInMonth) % 7)) % 7;
+  for (let i = 0; i < trailing; i++) {
+    grid.appendChild(buildCalendarCell(null));
+  }
+}
+
+function buildCalendarCell(date) {
+  const cell = document.createElement('button');
+  cell.type = 'button';
+  cell.className = 'cal-cell';
+
+  if (!date) {
+    cell.classList.add('blank');
+    cell.disabled = true;
+    return cell;
+  }
+
+  const key = dateKey(date);
+  const list = records[key] || [];
+  if (key === dateKey(new Date())) cell.classList.add('today');
+  if (list.length) cell.classList.add('has-records');
+
+  const sorted = list.slice().sort(function (a, b) {
+    return String(a.time).localeCompare(String(b.time));
+  });
+  const MAX = 3;
+  const icons = sorted.slice(0, MAX).map(function (r) {
+    return BRISTOL_ICONS[Number(r.bristol)] || '💩';
+  });
+  const more = sorted.length - MAX;
+
+  const day = document.createElement('span');
+  day.className = 'cal-day';
+  day.textContent = date.getDate();
+
+  const iconBox = document.createElement('span');
+  iconBox.className = 'cal-icons';
+  iconBox.textContent = icons.join('');
+  if (more > 0) {
+    const moreEl = document.createElement('span');
+    moreEl.className = 'cal-more';
+    moreEl.textContent = '+' + more;
+    iconBox.appendChild(moreEl);
+  }
+
+  cell.appendChild(day);
+  cell.appendChild(iconBox);
+
+  cell.addEventListener('click', function () {
+    selected = date;
+    setView('day');
+  });
+
+  return cell;
+}
+
+function renderLegend() {
+  const el = $('legend');
+  el.innerHTML = '';
+  BRISTOL.forEach(function (b) {
+    const item = document.createElement('span');
+    item.className = 'legend-item';
+    item.innerHTML =
+      '<span class="legend-icon">' +
+      BRISTOL_ICONS[b.value] +
+      '</span>' +
+      b.value +
+      ' ' +
+      h(b.label);
+    el.appendChild(item);
+  });
 }
 
 function renderDate() {
@@ -329,7 +458,7 @@ function saveRecord() {
   records[selectedKey()] = list;
 
   persist();
-  renderAll();
+  refresh();
   closeModal($('modal'));
   showToast(idx >= 0 ? '已更新' : '已保存');
 }
@@ -343,7 +472,7 @@ function deleteRecord(id) {
     delete records[selectedKey()];
   }
   persist();
-  renderAll();
+  refresh();
   showToast('已删除');
 }
 
@@ -446,7 +575,7 @@ function applyImport(mode) {
 
   pendingImport = null;
   persist();
-  renderAll();
+  refresh();
   closeModal($('importModal'));
   showToast('导入完成');
 }
@@ -509,15 +638,35 @@ function buildChips(container, options) {
 function bindEvents() {
   $('prevDay').addEventListener('click', function () {
     selected = addDays(selected, -1);
-    renderAll();
+    refresh();
   });
   $('nextDay').addEventListener('click', function () {
     selected = addDays(selected, 1);
-    renderAll();
+    refresh();
   });
   $('todayBtn').addEventListener('click', function () {
     selected = startOfToday();
-    renderAll();
+    refresh();
+  });
+
+  $('dayViewBtn').addEventListener('click', function () {
+    setView('day');
+  });
+  $('monthViewBtn').addEventListener('click', function () {
+    setView('month');
+  });
+  $('prevMonth').addEventListener('click', function () {
+    monthCursor = new Date(monthCursor.getFullYear(), monthCursor.getMonth() - 1, 1);
+    renderMonth();
+  });
+  $('nextMonth').addEventListener('click', function () {
+    monthCursor = new Date(monthCursor.getFullYear(), monthCursor.getMonth() + 1, 1);
+    renderMonth();
+  });
+  $('thisMonthBtn').addEventListener('click', function () {
+    const now = new Date();
+    monthCursor = new Date(now.getFullYear(), now.getMonth(), 1);
+    renderMonth();
   });
 
   $('addBtn').addEventListener('click', function () {
@@ -568,7 +717,7 @@ function init() {
   buildChips($('amountChips'), AMOUNTS);
   buildChips($('discomfortChips'), DISCOMFORTS);
   bindEvents();
-  renderAll();
+  renderDay();
 }
 
 init();
