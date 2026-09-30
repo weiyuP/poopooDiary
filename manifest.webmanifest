@@ -1,0 +1,17 @@
+{
+  "name": "便便日记 poopooDiary",
+  "short_name": "便便日记",
+  "description": "记录每日拉屎状态的个人日记",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#fdf6ec",
+  "theme_color": "#f59e0b",
+  "icons": [
+    {
+      "src": "icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

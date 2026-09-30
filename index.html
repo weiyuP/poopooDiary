@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#f59e0b" />
+  <title>便便日记 · poopooDiary</title>
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div class="brand">
+        <span class="logo" aria-hidden="true">💩</span>
+        <div class="brand-text">
+          <h1>便便日记</h1>
+          <p class="subtitle">poopooDiary</p>
+        </div>
+      </div>
+      <div class="topbar-actions">
+        <button id="exportBtn" class="btn ghost" type="button">导出</button>
+        <button id="importBtn" class="btn ghost" type="button">导入</button>
+        <input type="file" id="importFile" accept="application/json,.json" hidden />
+      </div>
+    </header>
+
+    <section class="date-nav" aria-label="日期导航">
+      <button id="prevDay" class="btn icon" type="button" aria-label="前一天">‹</button>
+      <div class="date-display">
+        <strong id="dateLabel">—</strong>
+        <span id="weekdayLabel">—</span>
+      </div>
+      <button id="nextDay" class="btn icon" type="button" aria-label="后一天">›</button>
+      <button id="todayBtn" class="btn ghost small" type="button">今天</button>
+    </section>
+
+    <section class="stats" aria-label="统计">
+      <div class="stat">
+        <span class="stat-num" id="todayCount">0</span>
+        <span class="stat-label">今日次数</span>
+      </div>
+      <div class="stat">
+        <span class="stat-num" id="monthCount">0</span>
+        <span class="stat-label">本月次数</span>
+      </div>
+    </section>
+
+    <main class="records" id="records"></main>
+
+    <button id="addBtn" class="fab" type="button" aria-label="添加记录">＋</button>
+  </div>
+
+  <div class="modal-backdrop" id="modal" hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <h2 id="modalTitle">添加记录</h2>
+      <form id="recordForm">
+        <input type="hidden" id="recordId" />
+
+        <label class="field">
+          <span>排便时间</span>
+          <input type="time" id="fTime" required />
+        </label>
+
+        <fieldset class="field">
+          <legend>布里斯托分类</legend>
+          <div class="bristol-grid" id="bristolGrid"></div>
+        </fieldset>
+
+        <div class="field">
+          <span class="field-label">颜色</span>
+          <div class="chips" id="colorChips"></div>
+        </div>
+
+        <div class="field">
+          <span class="field-label">量</span>
+          <div class="chips" id="amountChips"></div>
+        </div>
+
+        <div class="field">
+          <span class="field-label">伴随不适（可多选）</span>
+          <div class="chips" id="discomfortChips"></div>
+        </div>
+
+        <label class="field">
+          <span>备注</span>
+          <textarea id="fNotes" rows="3" placeholder="例如：昨晚吃了火锅…"></textarea>
+        </label>
+
+        <div class="modal-actions">
+          <button type="button" id="cancelBtn" class="btn ghost">取消</button>
+          <button type="submit" class="btn primary">保存</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="importModal" hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="importTitle">
+      <h2 id="importTitle">如何导入？</h2>
+      <p class="muted">检测到备份文件，请选择导入方式：</p>
+      <div class="modal-actions column">
+        <button id="mergeImport" class="btn primary" type="button">合并到现有数据</button>
+        <button id="replaceImport" class="btn" type="button">替换现有数据</button>
+        <button id="cancelImport" class="btn ghost" type="button">取消</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" hidden></div>
+
+  <script src="js/app.js"></script>
+</body>
+</html>
